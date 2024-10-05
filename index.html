@@ -1,12 +1,31 @@
 <!DOCTYPE html>
-   <html lang="en">
-   <head>
-       <meta charset="UTF-8">
-       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-       <title>AP Psychology Study App</title>
-   </head>
-   <body>
-       <h1>Welcome to the AP Psychology Study App!</h1>
-       <p>This app is currently under construction. Check back soon for study materials!</p>
-   </body>
-   </html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AP Psychology Study App</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>AP Psychology Study App</h1>
+    </header>
+    <main>
+        <div id="flashcard-container">
+            <div id="flashcard">
+                <div id="term"></div>
+                <div id="definition-example">
+                    <div id="definition"></div>
+                    <div id="example"></div>
+                </div>
+            </div>
+        </div>
+        <div id="controls">
+            <button id="flip-btn">Flip</button>
+            <button id="next-btn">Next</button>
+        </div>
+    </main>
+    <script src="js/script.js"></script>
+</body>
+</html>
