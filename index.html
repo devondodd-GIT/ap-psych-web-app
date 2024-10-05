@@ -12,6 +12,10 @@
         <h1>AP Psychology Study App</h1>
     </header>
     <main>
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+            <div id="progress-text">0 / 0 cards reviewed</div>
+        </div>
         <div id="flashcard-container">
             <div id="flashcard">
                 <div id="term"></div>
@@ -24,7 +28,10 @@
         <div id="controls">
             <button id="flip-btn">Flip</button>
             <button id="next-btn">Next</button>
+            <button id="mark-btn">Mark for Review</button>
+            <button id="review-mode-btn">Review Marked Cards</button>
         </div>
+        <div id="review-status"></div>
     </main>
     <script src="js/script.js"></script>
 </body>

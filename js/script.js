@@ -1,7 +1,9 @@
 let flashcards = [];
 let currentCardIndex = 0;
+let cardsReviewed = new Set();
+let markedCards = new Set();
+let isReviewMode = false;
 
-// Function to safely get DOM elements
 function getElement(id) {
     const element = document.getElementById(id);
     if (!element) {
@@ -16,9 +18,13 @@ const definitionElement = getElement('definition');
 const exampleElement = getElement('example');
 const flipButton = getElement('flip-btn');
 const nextButton = getElement('next-btn');
+const markButton = getElement('mark-btn');
+const reviewModeButton = getElement('review-mode-btn');
 const flashcardContainer = getElement('flashcard-container');
+const progressBar = getElement('progress-bar');
+const progressText = getElement('progress-text');
+const reviewStatus = getElement('review-status');
 
-// Fetch and parse the CSV file
 function loadFlashcards() {
     fetch('data/unit-ii-flashcards.csv')
         .then(response => {
@@ -31,10 +37,10 @@ function loadFlashcards() {
             Papa.parse(data, {
                 header: true,
                 complete: function(results) {
-                    console.log('Parsed flashcards:', results.data);  // Debug log
                     flashcards = results.data;
                     if (flashcards.length > 0) {
                         displayCard();
+                        updateProgress();
                     } else {
                         throw new Error('No flashcards found in the CSV file');
                     }
@@ -62,7 +68,30 @@ function displayCard() {
     if (definitionElement) definitionElement.textContent = card.definition || 'No definition available';
     if (exampleElement) exampleElement.textContent = card.example ? `Example: ${card.example}` : '';
     
-    if (flashcardElement) flashcardElement.classList.remove('flipped');
+    if (flashcardElement) {
+        flashcardElement.classList.remove('flipped');
+        flashcardElement.classList.toggle('marked-card', markedCards.has(currentCardIndex));
+    }
+    
+    cardsReviewed.add(currentCardIndex);
+    updateProgress();
+    updateReviewStatus();
+}
+
+function updateProgress() {
+    const progress = (cardsReviewed.size / flashcards.length) * 100;
+    if (progressBar) progressBar.style.width = `${progress}%`;
+    if (progressText) progressText.textContent = `${cardsReviewed.size} / ${flashcards.length} cards reviewed`;
+}
+
+function updateReviewStatus() {
+    if (reviewStatus) {
+        if (isReviewMode) {
+            reviewStatus.textContent = `Reviewing marked cards: ${currentCardIndex + 1} / ${markedCards.size}`;
+        } else {
+            reviewStatus.textContent = `${markedCards.size} card(s) marked for review`;
+        }
+    }
 }
 
 function flipCard() {
@@ -70,15 +99,46 @@ function flipCard() {
 }
 
 function nextCard() {
-    currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+    if (isReviewMode) {
+        const markedCardsArray = Array.from(markedCards);
+        const currentIndex = markedCardsArray.indexOf(currentCardIndex);
+        currentCardIndex = markedCardsArray[(currentIndex + 1) % markedCardsArray.length];
+    } else {
+        currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+    }
     displayCard();
 }
 
-// Only add event listeners if elements exist
+function markCard() {
+    if (markedCards.has(currentCardIndex)) {
+        markedCards.delete(currentCardIndex);
+    } else {
+        markedCards.add(currentCardIndex);
+    }
+    if (flashcardElement) {
+        flashcardElement.classList.toggle('marked-card', markedCards.has(currentCardIndex));
+    }
+    updateReviewStatus();
+}
+
+function toggleReviewMode() {
+    isReviewMode = !isReviewMode;
+    if (isReviewMode && markedCards.size > 0) {
+        currentCardIndex = Array.from(markedCards)[0];
+        reviewModeButton.textContent = 'Exit Review Mode';
+    } else {
+        currentCardIndex = 0;
+        isReviewMode = false;
+        reviewModeButton.textContent = 'Review Marked Cards';
+    }
+    displayCard();
+}
+
 if (flipButton) flipButton.addEventListener('click', flipCard);
 if (nextButton) nextButton.addEventListener('click', nextCard);
+if (markButton) markButton.addEventListener('click', markCard);
+if (reviewModeButton) reviewModeButton.addEventListener('click', toggleReviewMode);
 
-// Initial load
 loadFlashcards();
 
 console.log('Script loaded');
